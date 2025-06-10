@@ -1,0 +1,376 @@
+/* style.css (ФИНАЛЬНАЯ ВЕРСИЯ 4.3 - С улучшенной анимацией) */
+
+/* --- 1. ШРИФТЫ И ПЕРЕМЕННЫЕ --- */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;700&display=swap');
+
+:root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'Fira Code', "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    --bg-color: #f8f9fa;
+    --content-bg-color: #ffffff;
+    --text-color: #212529;
+    --text-muted-color: #6c757d;
+    --heading-color: #1a1a1a;
+    --accent-color: #4c6ef5;
+    --accent-gradient: linear-gradient(45deg, #4c6ef5, #7950f2);
+    --border-color: #e9ecef;
+    --code-bg-color: #f1f3f5;
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e9ecef;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --note-bg: rgba(13, 110, 253, 0.07); --note-border: #0d6efd; --note-text: #073b8a;
+    --tip-bg: rgba(25, 135, 84, 0.07); --tip-border: #198754; --tip-text: #0f5132;
+    --warning-bg: rgba(255, 193, 7, 0.1); --warning-border: #ffc107; --warning-text: #664d03;
+    --danger-bg: rgba(220, 53, 69, 0.07); --danger-border: #dc3545; --danger-text: #842029;
+    --scrollbar-thumb-color: #c1c1c1;
+    --scrollbar-thumb-hover-color: #a8a8a8;
+}
+
+body.dark-mode {
+    --bg-color: #1c1c1e; --content-bg-color: #2a2a2c; --text-color: #e0e0e0;
+    --text-muted-color: #8e8e93; --heading-color: #ffffff; --accent-color: #5881fd;
+    --accent-gradient: linear-gradient(45deg, #5881fd, #9d7bed); --border-color: #3a3a3c;
+    --code-bg-color: #333336; --sidebar-bg: #2a2a2c; --sidebar-border: #3a3a3c;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --note-bg: rgba(77, 171, 247, 0.1); --note-border: #4dabf7; --note-text: #a0d1f7;
+    --tip-bg: rgba(40, 167, 69, 0.15); --tip-border: #28a745; --tip-text: #73c686;
+    --warning-bg: rgba(255, 193, 7, 0.15); --warning-border: #ffc107; --warning-text: #ffda6a;
+    --danger-bg: rgba(220, 53, 69, 0.15); --danger-border: #dc3545; --danger-text: #f0959b;
+    --scrollbar-thumb-color: #555557;
+    --scrollbar-thumb-hover-color: #7d7d7f;
+}
+
+/* --- 2. ОБЩИЕ СТИЛИ --- */
+/* УДАЛЕНА АНИМАЦИЯ ИЗ ГЛОБАЛЬНОГО СЕЛЕКТОРА, ДОБАВЛЕНА НОВАЯ */
+@keyframes contentFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background-color: var(--bg-color); color: var(--text-color); margin: 0; transition: background-color 0.3s, color 0.3s; display: flex; }
+
+/* --- 3. МАКЕТ --- */
+.sidebar { width: 280px; height: 100vh; position: sticky; top: 0; background-color: var(--sidebar-bg); padding: 25px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid var(--sidebar-border); transition: background-color 0.3s, border-color 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+.main-content { flex-grow: 1; padding: 40px 60px; max-width: 900px; margin: 0 auto;
+    /* ИЗМЕНЕНИЕ: Добавляем overflow-y, чтобы сброс скролла в JS работал корректно */
+    height: 100vh; overflow-y: auto;
+}
+.sidebar-header { margin-bottom: 1em; }
+.logo { font-size: 1.5rem; font-weight: 700; color: var(--heading-color); }
+
+/* --- 4. НАВИГАЦИЯ ПО РАЗДЕЛАМ (САЙДБАР) --- */
+.section-nav { flex-grow: 1; }
+.nav-list, .nav-list ul { list-style: none; padding-left: 0; margin: 0; }
+.nav-list > li { margin-bottom: 4px; }
+.nav-category-toggle { display: flex; align-items: center; cursor: pointer; padding: 10px 15px; border-radius: 6px; font-weight: 700; color: var(--text-color); width: 100%; transition: background-color 0.2s; /* Добавим плавность для ховера */ }
+.nav-category-toggle:hover { background-color: var(--code-bg-color); }
+.nav-category-toggle .nav-chevron { margin-right: 8px; transition: transform 0.2s ease-in-out; }
+.section-nav-link { display: block; padding: 8px 15px; border-radius: 6px; color: var(--text-muted-color); font-weight: 500; text-decoration: none; transition: background-color 0.2s, color 0.2s; /* Добавим плавность */ }
+.section-nav-link:hover { background-color: var(--code-bg-color); color: var(--text-color); }
+.section-nav-link.active { color: var(--accent-color); background-color: var(--note-bg); font-weight: 700; }
+/* ЭТИ ДВА ПРАВИЛА ОБЕСПЕЧИВАЮТ ПЛАВНУЮ АНИМАЦИЮ МЕНЮ */
+.nav-list ul { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; padding-left: 20px; }
+li.is-open > ul { max-height: 2000px; } /* max-height должно быть больше любой возможной высоты списка */
+/* --- */
+li.is-open > .nav-category-toggle .nav-chevron { transform: rotate(90deg); }
+
+
+/* --- 5. ОГЛАВЛЕНИЕ "НА ЭТОЙ СТРАНИЦЕ" И ТЕМА --- */
+.toc-container { padding-top: 15px; border-top: 1px solid var(--border-color); }
+.nav-title { font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted-color); padding: 0 15px; margin-bottom: 10px; }
+.toc { list-style: none; padding: 0; }
+.toc a { display: block; padding: 8px 15px; border-radius: 6px; transition: all 0.2s; color: var(--text-muted-color); font-weight: 500; position: relative; text-decoration: none; }
+.toc a:hover { background-color: var(--code-bg-color); color: var(--text-color); }
+.toc li.active > a { color: var(--accent-color); background-color: transparent; }
+.toc li.active > a::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; background-color: var(--accent-color); border-radius: 2px; }
+.toc .toc-level-3 { padding-left: 20px; font-size: 0.9em; }
+.theme-switch-wrapper { display: flex; align-items: center; padding: 20px 15px 0; border-top: 1px solid var(--border-color); margin-top: 15px; }
+.theme-switch-label { margin-right: 10px; color: var(--text-muted-color); font-size: 0.9em; font-weight: 500; }
+.theme-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.theme-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23212529"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.39-1.01-4.56-2.63-6.11L17.5 7.5C18.82 8.61 19.5 10.23 19.5 12c0 4.14-3.36 7.5-7.5 7.5S4.5 16.14 4.5 12 7.86 4.5 12 4.5c1.77 0 3.39.68 4.61 1.89L18.11 4.89C16.56 3.37 14.39 2.5 12 2.5a9.01 9.01 0 0 0-3 17.32A9.01 9.01 0 0 0 21 12c0-.69-.07-1.36-.2-2.01L19.45 10.5C19.8 11.09 20 11.53 20 12c0 4.41-3.59 8-8 8s-8-3.59-8-8 3.59-8 8-8v1z"/></svg>'); background-size: 12px; background-repeat: no-repeat; background-position: center; }
+input:checked + .slider { background-color: var(--accent-color); }
+input:checked + .slider:before { transform: translateX(22px); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 3a9 9 0 1 0 9 9c0-2.39-1.01-4.56-2.63-6.11L17.5 7.5C18.82 8.61 19.5 10.23 19.5 12a7.5 7.5 0 0 1-7.5 7.5 7.5 7.5 0 0 1-7.5-7.5c0-1.77.68-3.39 1.89-4.61L4.89 6.39A9 9 0 0 0 3 12a9 9 0 0 0 9 9z"/></svg>'); }
+
+/* --- 6. КОНТЕНТ --- */
+/* НОВОЕ ПРАВИЛО ДЛЯ ПЛАВНОГО ПОЯВЛЕНИЯ КОНТЕНТА */
+.content-section.is-active {
+    animation: contentFadeIn 0.4s ease-out forwards;
+}
+
+h1 { font-size: 3em; font-weight: 700; margin-bottom: 1em; padding-bottom: 0.5em; background-image: var(--accent-gradient); color: transparent; -webkit-background-clip: text; background-clip: text; border-bottom: none; }
+h2, h3 { color: var(--heading-color); font-weight: 700; margin-top: 2em; margin-bottom: 1em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5em; }
+h2 { font-size: 2.2em; } h3 { font-size: 1.6em; }
+p, li { line-height: 1.8; font-size: 1.1rem; }
+a { color: var(--accent-color); text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; }
+hr { border: none; height: 2px; background-color: var(--border-color); margin: 3em auto; width: 50%; opacity: 0.5; }
+.main-content img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 8px 25px var(--shadow-color); display: block; margin: 2.5em auto; }
+
+/* ... (остальной CSS-код остается без изменений) ... */
+
+/* --- 7. БЛОКИ (УВЕДОМЛЕНИЯ, ЦИТАТЫ, КОД, АККОРДЫ) --- */
+pre { position: relative; margin: 2em 0; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px var(--shadow-color); overflow: hidden; }
+pre > code { display: block; padding: 1.5em; background-color: var(--code-bg-color) !important; color: var(--text-color); }
+.copy-button { position: absolute; top: 12px; right: 12px; background-color: rgba(128, 128, 128, 0.2); color: var(--text-color); border: 1px solid transparent; padding: 6px 10px; border-radius: 5px; cursor: pointer; opacity: 0; transition: all 0.2s; font-size: 0.8em; font-family: var(--font-sans); display: flex; align-items: center; gap: 5px; z-index: 2; }
+pre:hover .copy-button { opacity: 1; }
+.copy-button:hover { background-color: rgba(128, 128, 128, 0.4); border-color: var(--border-color); }
+.copy-button.copied { background-color: #28a745; color: white; }
+.admonition { padding: 1.2em 1.5em; margin: 2em 0; border-radius: 8px; border-left: 5px solid; }
+.admonition p, .admonition li { font-size: 1rem; line-height: 1.7; }
+.admonition a { font-weight: 700; }
+.admonition.note { background-color: var(--note-bg); border-color: var(--note-border); color: var(--note-text); }
+.admonition.tip { background-color: var(--tip-bg); border-color: var(--tip-border); color: var(--tip-text); }
+.admonition.warning { background-color: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
+.admonition.danger { background-color: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
+.admonition.note a { color: var(--note-border); } .admonition.tip a { color: var(--tip-border); } .admonition.warning a { color: var(--warning-border); } .admonition.danger a { color: var(--danger-border); }
+.admonition > *:first-child { margin-top: 0; } .admonition > *:last-child { margin-bottom: 0; }
+.admonition-title { font-weight: 700; margin-bottom: 0.5em; display: flex; align-items: center; }
+.admonition.note .admonition-title { color: var(--note-border); } .admonition.tip .admonition-title { color: var(--tip-border); } .admonition.warning .admonition-title { color: var(--warning-border); } .admonition.danger .admonition-title { color: var(--danger-border); }
+.admonition-title::before { display: inline-block; width: 24px; height: 24px; margin-right: 0.5em; background-size: contain; content: ''; }
+.admonition.note .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230d6efd"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>'); }
+.admonition.tip .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23198754"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>'); }
+.admonition.warning .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffc107"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>'); }
+.admonition.danger .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23dc3545"><path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3s.58-1.3 1.3-1.3 1.3.58 1.3 1.3-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/></svg>'); }
+body.dark-mode .admonition.note .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234dabf7"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>'); }
+body.dark-mode .admonition.tip .admonition-title::before { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2328a745"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>'); }
+blockquote { border-left: 3px solid var(--border-color); padding-left: 20px; margin-left: 0; margin-right: 0; color: var(--text-muted-color); }
+blockquote.quote-block { font-style: italic; border-left-color: var(--accent-color); }
+blockquote.quote-block p { color: var(--text-color); }
+div.chords-container { font-family: var(--font-mono); font-size: 1rem; color: var(--text-color); background-color: var(--content-bg-color); border: 1px dashed var(--border-color); border-radius: 8px; padding: 2em; line-height: 2.2; margin: 2em 0; }
+.chord { font-weight: bold; color: var(--accent-color); background-color: var(--code-bg-color); padding: 0.1em 0.5em; border-radius: 5px; border-bottom: 2px solid var(--border-color); display: inline-block; transform: translateY(-3px); white-space: nowrap; }
+body.dark-mode .chord { border-bottom-color: var(--accent-color); }
+
+/* --- 8. СКРОЛЛБАР --- */
+html { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb-color) transparent; }
+::-webkit-scrollbar, .sidebar::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track, .sidebar::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb, .sidebar::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-color); border-radius: 20px; border: 2px solid transparent; background-clip: content-box; transition: background-color 0.2s; }
+::-webkit-scrollbar-thumb:hover, .sidebar::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover-color); }
+
+/* --- 9. ПОДСВЕТКА СИНТАКСИСА --- */
+.hljs{color:#adbac7;background:#22272e}.hljs-comment,.hljs-punctuation{color:#768390}.hljs-tag,.hljs-variable,.hljs-status,.hljs-literal,.hljs-deletion,.hljs-char,.hljs-template-variable,.hljs-link,.hljs-selector-id,.hljs-selector-class{color:#f47067}.hljs-keyword,.hljs-selector-tag,.hljs-section,.hljs-attribute,.hljs-name,.hljs-strong,.hljs-code{color:#dcbdfb}.hljs-string,.hljs-regexp,.hljs-addition,.hljs-symbol,.hljs-bullet,.hljs-meta{color:#97c379}.hljs-number,.hljs-built_in,.hljs-type{color:#e6b450}.hljs-title,.hljs-subst{color:#74a0f3}.hljs-emphasis{font-style:italic}.hljs-doctag,.hljs-quote{color:#97c379}
+body:not(.dark-mode) .hljs{background:#f6f8fa;color:#24292e}body:not(.dark-mode) .hljs-comment,body:not(.dark-mode) .hljs-punctuation{color:#6a737d}body:not(.dark-mode) .hljs-tag,body:not(.dark-mode) .hljs-variable,body:not(.dark-mode) .hljs-status,body:not(.dark-mode) .hljs-literal,body:not(.dark-mode) .hljs-deletion,body:not(.dark-mode) .hljs-char,body:not(.dark-mode) .hljs-template-variable,body:not(.dark-mode) .hljs-link,body:not(.dark-mode) .hljs-selector-id,body:not(.dark-mode) .hljs-selector-class{color:#d73a49}body:not(.dark-mode) .hljs-keyword,body:not(.dark-mode) .hljs-selector-tag,body:not(.dark-mode) .hljs-section,body:not(.dark-mode) .hljs-attribute,body:not(.dark-mode) .hljs-name,body:not(.dark-mode) .hljs-strong,body:not(.dark-mode) .hljs-code{color:#6f42c1}body:not(.dark-mode) .hljs-string,body:not(.dark-mode) .hljs-regexp,body:not(.dark-mode) .hljs-addition,body:not(.dark-mode) .hljs-symbol,body:not(.dark-mode) .hljs-bullet,body:not(.dark-mode) .hljs-meta{color:#032f62}body:not(.dark-mode) .hljs-number,body:not(.dark-mode) .hljs-built_in,body:not(.dark-mode) .hljs-type{color:#e36209}body:not(.dark-mode) .hljs-title,body:not(.dark-mode) .hljs-subst{color:#005cc5}
+
+/* --- 4.5 СТИЛИ ПОИСКА --- */
+.search-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+.search-container .search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: var(--text-muted-color);
+    pointer-events: none; /* Иконка не перехватывает клики */
+}
+#search-input {
+    width: 100%;
+    padding: 12px 15px 12px 40px; /* Отступ слева для иконки */
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    transition: all 0.2s ease-in-out;
+}
+#search-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+}
+body.dark-mode #search-input:focus {
+    box-shadow: 0 0 0 3px rgba(88, 129, 253, 0.25);
+}
+#search-results {
+    /* Стилизуем контейнер, который будет появляться вместо навигации */
+    padding-bottom: 15px;
+}
+.search-results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.search-result-link {
+    display: block;
+    padding: 10px 15px;
+    border-radius: 6px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.search-result-link:hover {
+    background-color: var(--code-bg-color);
+    color: var(--accent-color);
+}
+.search-no-results {
+    padding: 15px;
+    color: var(--text-muted-color);
+    text-align: center;
+}
+
+
+/* --- 10. АДАПТИВНЫЙ ДИЗАЙН (MOBILE-FIRST APPROACH) --- */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex-grow: 1;
+    height: 100vh; /* <<< ДОБАВИТЬ */
+    overflow-y: auto; /* <<< ДОБАВИТЬ */
+}
+
+.mobile-header {
+    display: none; /* Скрыт на десктопах */
+}
+
+.mobile-overlay {
+    display: none; /* Скрыт на десктопах */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Точка переключения на мобильный вид. 992px - стандарт для планшетов */
+@media (max-width: 992px) {
+    /* 1. Скрываем сайдбар за левым краем экрана */
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        border-right: none;
+    }
+    
+    /* 2. Показываем сайдбар, когда у body есть класс */
+    body.sidebar-is-open .sidebar {
+        transform: translateX(0);
+    }
+    
+    /* 3. Показываем и стилизуем мобильную шапку */
+    .mobile-header {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: var(--sidebar-bg);
+        border-bottom: 1px solid var(--sidebar-border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .mobile-menu-toggle {
+        background: none;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        color: var(--text-color);
+    }
+    .mobile-menu-toggle svg {
+        width: 24px;
+        height: 24px;
+    }
+    .mobile-logo {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--heading-color);
+        margin-left: 15px;
+    }
+
+    /* 4. Показываем оверлей при открытом меню */
+    body.sidebar-is-open .mobile-overlay {
+        display: block;
+        opacity: 1;
+    }
+    
+    /* 5. Уменьшаем отступы у основного контента */
+    .main-content {
+    flex-grow: 1;
+    padding: 40px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    height: 100vh; /* <<< ПРОБЛЕМА ЗДЕСЬ */
+    overflow-y: auto; /* <<< И ЗДЕСЬ */
+    }
+
+    h1 { font-size: 2.5em; }
+    h2 { font-size: 1.8em; }
+    h3 { font-size: 1.4em; }
+}
+
+/* Более агрессивные стили для очень маленьких экранов */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+    p, li {
+        font-size: 1rem;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ БЛОКОВ С АККОРДАМИ (ЗАМЕНИТЬ СТАРЫЕ) --- */
+.song-part {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-color);
+    background-color: var(--content-bg-color);
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 1.5em 2em;
+    margin: 2em 0;
+    line-height: 1.5;
+}
+.song-section-title {
+    font-weight: bold;
+    color: var(--text-muted-color);
+    margin: 1.5em 0 0.5em;
+    font-size: 0.9em;
+}
+.song-empty-line {
+    margin: 0;
+    height: 1em; /* Создает пустую строку */
+}
+.line-pair {
+    margin-bottom: 1em;
+    position: relative;
+}
+/* Используем <pre> для сохранения пробелов */
+.chords-line, .lyrics-line, .lyrics-line-only {
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    white-space: pre-wrap; /* Переносить длинные строки */
+    word-wrap: break-word;
+    background: none;
+    border: none;
+    color: inherit;
+}
+.chords-line {
+    color: var(--accent-color);
+    font-weight: bold;
+    line-height: 1.3; /* Немного сближаем с текстом */
+}
+.lyrics-line {
+    line-height: 1.3;
+}
+/* Сам тег аккорда */
+.chord {
+    display: inline; /* Не inline-block, чтобы не ломать поток */
+    padding: 0;
+    background: none;
+    border: none;
+    transform: none;
+}
